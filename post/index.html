@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Single Post</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+    <div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-6">
+        <button onclick="goBack()" class="text-blue-500 hover:underline mb-4">Back to All Posts</button>
+        <h1 id="postTitle" class="text-2xl font-bold mb-4 text-center">Loading...</h1>
+        <p id="postBody" class="text-gray-700">Loading...</p>
+    </div>
+
+    <script>
+        const BASEURL = "https://jsonplaceholder.typicode.com";
+
+        // Get the post ID from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        // Function to fetch and display the post
+        async function fetchPost() {
+            const localPosts = JSON.parse(localStorage.getItem('posts')) || [];
+            const postFromLocalStorage = localPosts.find(post => post.id == postId);
+
+            if (postFromLocalStorage) {
+                // Display the post from localStorage if it exists
+                document.getElementById('postTitle').textContent = postFromLocalStorage.title;
+                document.getElementById('postBody').textContent = postFromLocalStorage.body;
+            } else {
+                try {
+                    // If not found in localStorage, fetch the post from the API
+                    const response = await fetch(`${BASEURL}/posts/${postId}`);
+                    const post = await response.json();
+
+                    // Update the DOM with the fetched post data
+                    document.getElementById('postTitle').textContent = post.title;
+                    document.getElementById('postBody').textContent = post.body;
+                } catch (error) {
+                    console.error('Error fetching post:', error);
+                    document.getElementById('postTitle').textContent = 'Post not found';
+                    document.getElementById('postBody').textContent = 'Sorry, we couldn\'t load the post.';
+                }
+            }
+        }
+
+        // Call the function to fetch the post when the page loads
+        fetchPost();
+
+        // Function to go back to the previous page
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+
+</html>
